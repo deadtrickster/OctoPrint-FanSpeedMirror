@@ -87,12 +87,11 @@ class FanSpeedMirror(octoprint.plugin.StartupPlugin,
 		if gcode and gcode.startswith('M106'):
 			fanPwm = re.search("S(\d+\.?\d*)", cmd)
 			if fanPwm and fanPwm.group(1):
-				fanPwm = fanPwm.group(1)
 				if self.M106command != "":
-					cmd_line = self.M106command + " " + str(fanPwm)
+					cmd_line = self.M106command + " " + cmd[4:].strip()
 					self._logger.debug("Executing (" + cmd_line + ")")
 					try:
-						r = subprocess.call([self.M106command, str(fanPwm)])
+						r = subprocess.call([self.M106command, cmd[4:].strip()])
 						if r < 0:
 							self._logger.error("Error executing command %s: %s" % (cmd_line, r))
 					except OSError as e:
@@ -101,10 +100,10 @@ class FanSpeedMirror(octoprint.plugin.StartupPlugin,
 					self._logger.debug("M106command is empty")
 		elif gcode and gcode.startswith('M107'):
 			if self.M107command != "":
-				cmd_line = self.M107command
+				cmd_line = self.M107command + " " + cmd[4:].strip()
 				self._logger.debug("Executing (" + cmd_line + ")")
 				try:
-					r = subprocess.call(cmd_line)
+					r = subprocess.call([cmd_line, cmd[4:].strip()])
 					if r < 0:
 						self._logger.error("Error executing command %s: %s" % (cmd_line, r))
 				except OSError as e:
